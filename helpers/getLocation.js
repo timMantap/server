@@ -1,7 +1,7 @@
 const axios = require('axios')
 const URL = 'http://api.ipstack.com/check?access_key='
 
-function getLocation() {
+function getLocation(req, res, next) {
     return axios({
         method: 'GET',
         url: URL+process.env.IPSTACK_APIKEY
@@ -19,6 +19,8 @@ function getLocation() {
             country_code,
             adj
         }
+
+        // next(data)
         return data
         // return res.status(200).json({lat, lon})
 

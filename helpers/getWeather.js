@@ -1,7 +1,7 @@
 const axios = require('axios')
 const URL = 'api.airvisual.com/v2/nearest_city?key='
 
-function getWeather() {
+function getWeather(req, res, next) {
     return axios({
         method: 'GET',
         url: URL+process.env.IQAIR_APIKEY
@@ -19,6 +19,8 @@ function getWeather() {
             precip,
             windspeed
         }
+
+        // next(data)
         return data
         // return res.status(200).json({lat, lon})
 
