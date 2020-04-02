@@ -1,10 +1,12 @@
 const axios = require('axios')
 // const URL = 'https://developers.zomato.com/api/v2.1/search?count=20&lat=-6.1741&lon=106.8296&cuisines=Indonesian&establishment_type=casual&sort=rating&order=des'
 
-function getRecommendations(req, res, next, lat, lon, adj) {
+function getRecommendations(req, res, next) {
+    let adj = 'indonesian'
     return axios({
         method: 'GET',
-        url: `https://developers.zomato.com/api/v2.1/search?count=20&lat=${lat}&lon=${lon}&cuisines=${adj}&establishment_type=casual&sort=rating&order=des`,
+        // url: URL,
+        url: `https://developers.zomato.com/api/v2.1/search?count=20&lat=${req.lat}&lon=${req.lon}&cuisines=${adj}&establishment_type=casual&sort=rating&order=des`,
         headers: {
             "user-key": process.env.ZOMATO_APIKEY
         }
@@ -16,15 +18,15 @@ function getRecommendations(req, res, next, lat, lon, adj) {
 
 
         raw.forEach(el => {
-            let id = el.id
-            let name = el.name
-            let address = el.location.address
-            let cuisines = el.cuisines
-            let timings = el.timings
-            let cost42 = el.average_cost_for_two
-            let currency = el.currency
+            let id = el.restaurant.id
+            let name = el.restaurant.name
+            let address = el.restaurant.location.address
+            let cuisines = el.restaurant.cuisines
+            let timings = el.restaurant.timings
+            let cost42 = el.restaurant.average_cost_for_two
+            let currency = el.restaurant.currency
             let avg_cost_for_two = `${currency}.${cost42}`
-            let thumb = el.thumb
+            let thumb = el.restaurant.thumb
             
             arr.push({
                 id,
@@ -38,9 +40,9 @@ function getRecommendations(req, res, next, lat, lon, adj) {
         })
 
         // next(arr)
-        return arr
+        // return arr
         
-        // return res.status(200).json({lat, lon})
+        return res.status(200).json({ restaurants: arr })
 
     }) 
     .catch(err => {

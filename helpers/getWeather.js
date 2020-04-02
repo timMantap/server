@@ -1,13 +1,9 @@
 const axios = require('axios')
-const URL = 'api.airvisual.com/v2/nearest_city?key='
+const URL = `http://api.airvisual.com/v2/nearest_city?key=${process.env.IQAIR_APIKEY}`
 
 function getWeather(req, res, next) {
-    return axios({
-        method: 'GET',
-        url: URL+process.env.IQAIR_APIKEY
-    })
+    return axios.get(URL)
     .then(response => {
-
         let raw = response.data.data.current.weather
         let temperature = raw.tc // CELCIUS
         let humidity = raw.hu // % HUMIDITY
@@ -21,8 +17,10 @@ function getWeather(req, res, next) {
         }
 
         // next(data)
-        return data
-        // return res.status(200).json({lat, lon})
+        // return data
+        return next()
+        req.weatherData = response.data
+        // return res.status(200).json({ data: response.data })
 
     }) 
     .catch(err => {
