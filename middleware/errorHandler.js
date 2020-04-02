@@ -1,32 +1,42 @@
-const errorHandler = (err, req, res, next) => {
-    if (err.name == 'SequelizeValidationError') {
-        console.log(`masuk ke error Handler validation`)
-        const errors = err.errors.map(error => {
-            return {message: error.message}
+const { Sequelize } = require('../models');
+
+function errorHandler(err, req, res, next) {
+    if (err instanceof Sequelize.ValidationError) {
+        let arr = [];
+        err.errors.forEach(item => {
+            arr.push(item.message)
         })
-        return res.status(400).json({
-            errors
+        res.status(400).json({
+            errors: arr
         })
-    } else if (err.name == 'BadRequest' || err.name == 'NotFound') {
-        console.log(`masuk ke error handler notFound/badRequest`)
-        return res.status(404).json({errors: err.errors})
-    } else if (err.name == 'Unauthenticated') {
-        console.log(`masuk ke error handler Unauthenticated`)
-        return res.status(401).json({errors: err.errors})
-    } else if (err.name == 'Unauthorized') {
-        console.log(`masuk ke error handler Unauthorized`)
-        return res.status(403).json({errors: err.errors})
-    } else if (err.name == 'InternalServerError') {
-        console.log(`masuk ke error handler InternalServerError`)
-        return res.status(500).json({errors: err.errors})
-    } else if (err.name == 'SequelizeDatabaseError') {
-        console.log(`masuk ke error handler SequelizeDatabaseError`)
-        return res.status(500).json({errors: [{message: `Database Error`}]})
+    } else if (err instanceof Sequelize.EmptyResultError) {
+        res.status(404).json({
+            errors: [err.message]
+        })
+    } else if (err instanceof Sequelize.DatabaseError) {
+        res.status(400).json({
+            errors: [err.message]
+        })
+    } 
+    else if (err.name ===  'TokenExpiredError') {
+        res.status(401).json({
+            errors: [err.message]
+        })
+    } 
+    else if (err.name ===  'JsonWebTokenError') {
+        res.status(400).json({
+            errors: [err.message]
+        })
+    }
+    else if (err instanceof Error) {
+        res.status(err.code).json({
+            errors: [err.message],
+        })
     } else {
-        console.log(`masuk ke error handler else`)
-        console.log(err)
-        return res.status(401).json({errors: err.errors})
+        res.status(500).json({
+            errors: ["INTERNAL SERVER ERROR"],
+        })
     }
 }
+module.exports = { errorHandler }
 
-module.exports = errorHandler
