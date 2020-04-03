@@ -1,6 +1,7 @@
 const models = require('../models')
 const {generateToken} = require('../helpers/jwt.js')
 const {decryptPassword} = require('../helpers/bcrypt.js')
+const { OAuth2Client } = require('google-auth-library')
 
 class UserController {
     static read(req, res, next) {
@@ -75,7 +76,52 @@ class UserController {
     }
 
     static googleLogin(req, res, next) {
-
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        let email;
+        // nge decode token yang dikasih gmail
+        client.verifyIdToken({
+                idToken: req.body.id_token,
+                audience: process.env.GOOGLE_CLIENT_ID
+            })
+            .then(ticket => {
+                console.log(`=======HASIL DECODE TOKEN========`)
+                console.log(ticket)
+                console.log(`=======DOWN========`)
+                    // ngambil email dari hasil decode, utk dicek di db kita, email user udh terdaftar apa belum
+                email = ticket.getPayload().email
+                return models.User.findOne({ where: { email: email } })
+                    .then(result => {
+                        if (result) {
+                            let payload = {
+                                id: result.id,
+                                email
+                            }
+                            let token = generateToken(payload)
+                            res.status(200).json({
+                                id: result.id,
+                                email: email,
+                                token: token
+                            })
+                        } else {
+                            return models.User.create({ email, password: 'userGoogle' })
+                        }
+                    })
+                    .then(result => {
+                        let payload = {
+                            id: result.id,
+                            email: result.email
+                        }
+                        let token = generateToken(payload)
+                        return res.status(201).json({
+                            id: result.id,
+                            email: result.email,
+                            token: token
+                        })
+                    })
+                    .catch(err => {
+                        return next(err)
+                    })
+            })
     }
 }
 

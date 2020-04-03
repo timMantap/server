@@ -12,12 +12,13 @@ function getRecommendations(req, res, next) {
         }
     })
     .then(response => {
-
+        console.log(req.weatherData)
         let raw = response.data.restaurants
         let arr = []
 
 
         raw.forEach(el => {
+            let url = el.restaurant.url
             let id = el.restaurant.id
             let name = el.restaurant.name
             let address = el.restaurant.location.address
@@ -30,6 +31,7 @@ function getRecommendations(req, res, next) {
             
             arr.push({
                 id,
+                url,
                 thumb,
                 name,
                 address,
