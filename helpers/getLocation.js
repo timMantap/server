@@ -1,30 +1,22 @@
 const axios = require('axios')
-const URL = 'http://api.ipstack.com/check?access_key='
 
 function getLocation(req, res, next) {
-    return axios.get(`${URL}${process.env.IPSTACK_APIKEY}`)
+        return axios.get('https://api.ipify.org?format=json')
     .then(response => {
+        console.log(`respon ipify`)
+        console.log(response.data)
+        // console.log(response.data)
+        return axios.get(`https://ipapi.co/${response.data.ip}/json`)
+        
+    })
+    .then(response => {
+        console.log(`respon ipstack`)
+        console.log(response.data)
         let lat = response.data.latitude
         let lon = response.data.longitude
-        // let country = response.data.country_name
-        // let country_code = response.data.country_code
-        // let adj = response.data.location.languages[0].name
-        // let data = {
-        //     lat,
-        //     lon,
-        //     country,
-        //     country_code,
-        //     adj
-        // }
-
-        // next(data)
-        // return data
-        req.lat = lat
-        req.lon = lon
+        req.locData= {lat, lon}
         return next()
-        // return res.status(200).json({data})
-
-    }) 
+    })
     .catch(err => {
         console.log("ERROR FETCHING GEOLOCATION");
         next(err)

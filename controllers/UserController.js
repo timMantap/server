@@ -78,6 +78,8 @@ class UserController {
     static googleLogin(req, res, next) {
         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
         let email;
+        let payload;
+        let token;
         // nge decode token yang dikasih gmail
         client.verifyIdToken({
                 idToken: req.body.id_token,
@@ -92,27 +94,23 @@ class UserController {
                 return models.User.findOne({ where: { email: email } })
                     .then(result => {
                         if (result) {
-                            let payload = {
-                                id: result.id,
-                                email
-                            }
-                            let token = generateToken(payload)
-                            res.status(200).json({
-                                id: result.id,
-                                email: email,
-                                token: token
-                            })
+                            console.log(`db udh punya`)
+                            console.log(result)
+                            return result
                         } else {
+                            console.log(`db belum punya`)
                             return models.User.create({ email, password: 'userGoogle' })
                         }
                     })
                     .then(result => {
-                        let payload = {
+                        console.log(`ini result`)
+                        console.log(result)
+                        payload = {
                             id: result.id,
                             email: result.email
                         }
-                        let token = generateToken(payload)
-                        return res.status(201).json({
+                        token = generateToken(payload)
+                        return res.status(200).json({
                             id: result.id,
                             email: result.email,
                             token: token

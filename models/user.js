@@ -24,6 +24,13 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING
   }, {
     sequelize,
+    validate: {
+      checkEmpty() {
+        if(this.email == '' || this.password == '') {
+          throw new Error(`please fill all the blank form`)
+        }
+      }
+    },
     hooks: {
       beforeCreate(User, options) {
         User.password = encryptPassword(User.password)

@@ -1,27 +1,16 @@
 const axios = require('axios')
-const URL = `http://api.airvisual.com/v2/nearest_city?key=${process.env.IQAIR_APIKEY}`
 
 function getWeather(req, res, next) {
-    return axios.get(URL)
+    return axios.get(`https://api.weatherbit.io/v2.0/current?lat=${req.locData.lat}&lon=${req.locData.lon}&key=${process.env.APIKEY_WEATHERBIT}`)
     .then(response => {
-        let raw = response.data.data.current.weather
-        let temperature = raw.tc // CELCIUS
-        let humidity = raw.hu // % HUMIDITY
-        let precip = raw.pr // PRECIPITATION IN MM
-        let windspeed = raw.ws // WIND SPEED, M/S
-        let data = {
-            temperature,
-            humidity,
-            precip,
-            windspeed
-        }
-
-        // next(data)
-        // return data
-        console.log(req.lon, req.lat)
-        req.weatherData = response.data
+        // console.log(`ini respon weather bit`)
+        // console.log(response)
+        // console.log(response.data.data[0])
+        let data = response.data.data[0]
+        // console.log(data)
+        // console.log(req.lon, req.lat)
+        req.weatherData = data
         return next()
-        // return res.status(200).json({ data: response.data })
 
     }) 
     .catch(err => {
