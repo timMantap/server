@@ -18,8 +18,9 @@ function getWeather(req, res, next) {
 
         // next(data)
         // return data
-        return next()
+        console.log(req.lon, req.lat)
         req.weatherData = response.data
+        return next()
         // return res.status(200).json({ data: response.data })
 
     }) 
