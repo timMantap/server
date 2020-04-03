@@ -1,18 +1,16 @@
 const axios = require('axios')
-// const URL = 'https://developers.zomato.com/api/v2.1/search?count=20&lat=-6.1741&lon=106.8296&cuisines=Indonesian&establishment_type=casual&sort=rating&order=des'
 
 function getRecommendations(req, res, next) {
     let adj = 'indonesian'
     return axios({
         method: 'GET',
-        // url: URL,
-        url: `https://developers.zomato.com/api/v2.1/search?count=20&lat=${req.lat}&lon=${req.lon}&cuisines=${adj}&establishment_type=casual&sort=rating&order=des`,
+        url: `https://developers.zomato.com/api/v2.1/search?lat=${req.locData.lat}&lon=${req.locData.lon}&sort=real_distance`,
         headers: {
             "user-key": process.env.ZOMATO_APIKEY
         }
     })
     .then(response => {
-        console.log(req.weatherData)
+        // console.log(req.weatherData)
         let raw = response.data.restaurants
         let arr = []
 
@@ -44,14 +42,16 @@ function getRecommendations(req, res, next) {
         // next(arr)
         // return arr
         
-        return res.status(200).json({ restaurants: arr })
+        return res.status(200).json({ 
+            restaurants: arr,
+            weather: req.weatherData        
+        })
 
     }) 
     .catch(err => {
         console.log("ERROR FETCHING RECOMMENDATIONS");
         next(err)
     })
-
 }
 
 module.exports = { getRecommendations }
